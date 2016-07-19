@@ -56,6 +56,11 @@ ${locator.questions[0].answer}                                  css=.zk-question
   ${tender_data}=   adapt_procuringEntity   ${tender_data}
   [return]  ${tender_data}
 
+Підготувати дані для оголошення тендера користувачем
+  [Arguments]  ${username}  ${tender_data}  ${role_name}
+  ${tender_data}=  adapt_test_mode  ${tender_data}
+  [return]  ${tender_data}
+
 Login
   [Arguments]  @{ARGUMENTS}
   Click Element   ${sign_in}
@@ -122,7 +127,7 @@ Login
     Sleep    2
     Input text        id=state_purchases_items-0-delivery_postal_code       ${postalCode}
     Click Element     id=state_purchases_items-0-delivery_region_dd
-    Click Element     xpath=//li[contains(@data-value, 'Киев')]
+    Click Element     xpath=//li[contains(@data-value, '26')]
     Input text        id=state_purchases_items-0-delivery_locality          ${locality}
     Input text        id=state_purchases_items-0-delivery_street_address    ${streetAddress}
     ${latitude}=   Convert To String     ${latitude}
@@ -176,7 +181,7 @@ Login
   Sleep   2
   Click Button     id=submit_button
   Sleep   3
-  Capture Page Screenshot
+
 
 Пошук тендера по ідентифікатору
   [Arguments]  @{ARGUMENTS}
@@ -211,12 +216,13 @@ Login
   Sleep   1
   Click Element     id=qa_question_and_answer
   Sleep   15
-  Click Element     xpath=//a[contains(@href, 'state_purchase_question/add')]
+  Click Element     xpath=//a[contains(@href, 'state_auction_question/add')]
   Wait Until Page Contains Element    name=title    20
   Input text                          name=title                 ${title}
   Input text                          xpath=//textarea[@name='description']           ${description}
   Click Element                       id=submit_button
-  Wait Until Page Contains Element            xpath=//a[contains(@href, 'state_purchase_question/add')]     30
+  Wait Until Page Contains Element            xpath=//a[contains(@href, 'state_auction_question/add')]     30
+  capture page screenshot
 
 Оновити сторінку з тендером
     [Arguments]    @{ARGUMENTS}
@@ -243,6 +249,7 @@ Login
   [return]  ${return_value}
 
 Отримати інформацію про status
+  reload page
   ${return_value}=   Отримати тест із поля і показати на сторінці   status
   ${return_value}=   convert_prom_string_to_common_string   ${return_value}
   [return]  ${return_value}
@@ -323,7 +330,7 @@ Login
 
 Отримати інформацію про procuringEntity.name
   ${return_value}=   Отримати тест із поля і показати на сторінці   procuringEntity.name
-   Fail  Немає такого поля при перегляді
+  [return]  ${return_value}
 
 Отримати інформацію про items[0].deliveryLocation.latitude
   ${return_value}=   Отримати тест із поля і показати на сторінці   items[0].deliveryLocation.latitude
@@ -347,7 +354,7 @@ Login
 
 Отримати інформацію про enquiryPeriod.startDate
   ${return_value}=   Отримати тест із поля і показати на сторінці  enquiryPeriod.startDate
-  Fail   Дане поле відсутнє на Prom.ua
+  Fail   Дане поле відсутнє на e-auction.dz-test.net
 
 Отримати інформацію про enquiryPeriod.endDate
   ${return_value}=   Отримати тест із поля і показати на сторінці  enquiryPeriod.endDate
@@ -376,7 +383,8 @@ Login
 
 Отримати інформацію про items[0].deliveryAddress.countryName
   ${return_value}=   Отримати тест із поля і показати на сторінці  items[0].deliveryAddress.countryName
-  [return]      ${return_value.split(', ')[0]}
+  ${return_value}=   convert_prom_string_to_common_string   ${return_value}
+  [return]  ${return_value}
 
 Отримати інформацію про items[0].deliveryAddress.postalCode
   ${return_value}=   Отримати тест із поля і показати на сторінці  items[0].deliveryAddress.postalCode
@@ -449,7 +457,7 @@ Login
     ${amount}=    Get From Dictionary     ${ARGUMENTS[2].data.value}    amount
     Selenium2Library.Switch Browser       ${ARGUMENTS[0]}
     Go to   ${USERS.users['${ARGUMENTS[0]}'].default_page}
-    sleep   2
+    sleep   10
     Input Text        id=search       ${ARGUMENTS[1]}
     Click Button    xpath=//button[@type='submit']
     Sleep   2
@@ -524,6 +532,8 @@ Login
 Отримати інформацію про bids
     [Arguments]  @{ARGUMENTS}
     Selenium2Library.Switch Browser       ${ARGUMENTS[0]}
+    Go to   ${USERS.users['${ARGUMENTS[0]}'].homepage}
+    Sleep   380
 
 Отримати посилання на аукціон для глядача
     [Arguments]  @{ARGUMENTS}
@@ -533,8 +543,6 @@ Login
     Click Button    id=search_submit
     Sleep  2
     CLICK ELEMENT     xpath=(//a[contains(@href, 'net/dz/')])[1]
-    Sleep  2
-    Sleep   60
     reload page
     ${result} =    get text    xpath=//a[contains(@target, 'blank_')]
     [return]   ${result}
@@ -546,9 +554,8 @@ Login
     Input Text        id=search       ${ARGUMENTS[1]}
     Click Button    xpath=//button[@type='submit']
     Sleep   2
-    Click Element   xpath=(//td[contains(@class, 'qa_item_name')]//a)[1]
-    Sleep   60
+    CLICK Element     xpath=(//a[contains(@href, 'state_auction/view')])[1]
+    Sleep   120
     reload page
     ${result}=       get text    xpath=//a[contains(@target, 'blank_')]
     [return]   ${result}
-

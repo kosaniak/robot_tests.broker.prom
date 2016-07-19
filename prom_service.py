@@ -45,9 +45,9 @@ def convert_date_to_prom_tender_enddate(isodate):
     return second_iso
 
 
-
 def convert_prom_string_to_common_string(string):
     return {
+        u"Украина": u"Україна",
         u"кілограми": u"кілограм",
         u"кг.": u"кілограми",
         u"грн.": u"UAH",
@@ -55,13 +55,23 @@ def convert_prom_string_to_common_string(string):
         u"Картонки": u"Картонні коробки",
         u"Період уточнень": u"active.enquiries",
         u"Прийом пропозицій": u"active.tendering",
-        u"Аукціон ": u"active.auction",
+        u"Аукціон": u"active.auction",
     }.get(string, string)
 
 
 def adapt_procuringEntity(tender_data):
     tender_data['data']['procuringEntity']['name'] = u'ДП "autotest"'
-    tender_data['data']['procuringEntity']['address']['countryName'] = u"Украина"
+    tender_data['data']['procuringEntity']['address']['countryName'] = u"Україна"
     tender_data['data']['items'][0]['unit']['name'] = u"килограммы"
     return tender_data
 
+# def adapt_test_mode( tender_data):
+#     tender_data['data']['mode'] = None
+#     return tender_data
+    
+def adapt_test_mode(tender_data):
+    try:
+        del tender_data['data']['mode']
+    except KeyError:
+        pass
+    return tender_data
